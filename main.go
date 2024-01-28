@@ -6,6 +6,7 @@ import (
 )
 
 var ipTokenBucket = make(map[string]*TokenBucket)
+var fixedWindowVariable = InitialiseFixedWindowCounter()
 
 func handleTokenBucket(w http.ResponseWriter, r *http.Request) {
 	ip_address := r.RemoteAddr
@@ -23,8 +24,20 @@ func handleTokenBucket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleFixedWindowCounter(w http.ResponseWriter, r *http.Request) {
+	if fixedWindowVariable.IsRequestAllowed() {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("You haven't breached the limit!\n"))
+	} else {
+		w.WriteHeader(http.StatusTooManyRequests)
+		w.Write([]byte("Too many requests!\n"))
+	}
+}
+
 func main() {
 	http.HandleFunc("/token-bucket", handleTokenBucket)
+
+	http.HandleFunc("/fixed-window", handleFixedWindowCounter)
 
 	go func() {
 		for {
