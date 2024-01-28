@@ -41,9 +41,11 @@ func main() {
 
 	go func() {
 		for {
-			time.Sleep(time.Second)
-			for _, tb := range ipTokenBucket {
-				tb.Refill()
+			if len(ipTokenBucket) > 0 {
+				time.Sleep(time.Second)
+				for _, tb := range ipTokenBucket {
+					tb.Refill()
+				}
 			}
 		}
 	}()
